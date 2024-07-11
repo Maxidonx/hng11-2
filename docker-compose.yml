@@ -1,0 +1,61 @@
+
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      VITE_API_URL: http://localhost:8000
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: nodejs_app
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./backend/.env
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8081:8080"
+
+  proxy:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx_proxy_manager
+    ports:
+      - "80:80"
+      - "442:442"
+      - "82:82"
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    depends_on:
+      - db
+      - backend
+      - frontend
+      - adminer
+
+volumes:
+  postgres_data:
+  data:
+  letsencrypt:
