@@ -1,22 +1,25 @@
-# Use the latest official Node.js image as a base
+#Use the latest node image to build
 FROM node:latest
 
 
-RUN apt-get update && apt-get install -y \
-    nodejs \
-    npm
+#set the working directory
+WORKDIR /user/src/app
 
-# Set the working directory
-WORKDIR /app
 
-# Copy the application files
-COPY . .
+#Copy the dependencies
+COPY package*.json ./
 
-# Install dependencies
+
+#copy the project folder to the working directory
+COPY . /user/src/app
+
+#install dependencies
 RUN npm install
 
-# Expose the port the development server runs on
+
+#expose port
 EXPOSE 5173
 
-# Run the development server
+
+#Start the app
 CMD ["npm", "run", "dev", "--", "--host"]
